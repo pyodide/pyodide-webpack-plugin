@@ -15,8 +15,14 @@ export class PyodidePlugin extends CopyPlugin {
         from: path.resolve(PyodidePlugin.pyodidePackage, "distutils.tar"),
         to: path.join(outRoot, "distutils.tar"),
       },
-      { from: path.resolve(PyodidePlugin.pyodidePackage, "packages.json"), to: path.join(outRoot, "packages.json") },
-      { from: path.resolve(PyodidePlugin.pyodidePackage, "pyodide_py.tar"), to: path.join(outRoot, "pyodide_py.tar") },
+      {
+        from: path.resolve(PyodidePlugin.pyodidePackage, "packages.json"),
+        to: path.join(outRoot, "packages.json"),
+      },
+      {
+        from: path.resolve(PyodidePlugin.pyodidePackage, "pyodide_py.tar"),
+        to: path.join(outRoot, "pyodide_py.tar"),
+      },
       {
         from: path.resolve(PyodidePlugin.pyodidePackage, "pyodide.asm.js"),
         to: path.join(outRoot, "pyodide.asm.js"),

@@ -5,6 +5,7 @@ const nodeExternals = require("webpack-node-externals");
 
 // webpack config overloads when type is es6
 // npx webpack --env output='es6'
+
 const es6 = {
   experiments: {
     outputModule: true,
@@ -59,7 +60,7 @@ const umd = {
 };
 
 // webpack config
-module.exports = (env, argv) => {
+module.exports = (env) => {
   const config = _.merge(
     {
       target: "node",

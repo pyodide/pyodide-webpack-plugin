@@ -20,17 +20,24 @@
     "types",
     "plugin.*"
   ],
+  "prettier": {
+    "printWidth": 120
+  },
   "scripts": {
     "build": "npm-run-all -p build:*",
     "build:umd": "webpack",
     "build:es6": "npm run build:umd -- --env output='es6'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },
   "author": "Michael Neil <@mneil>",
   "license": "MPL-2.0",
   "devDependencies": {
     "@types/node": "^18.7.18",
     "@types/webpack-env": "^1.18.0",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "lodash": "^4.17.21",
