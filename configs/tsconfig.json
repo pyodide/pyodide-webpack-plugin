@@ -10,5 +10,6 @@
     "declarationMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "files": ["../index.ts"]
+  "files": ["../index.ts"],
+  "exclude": ["node_modules"]
 }

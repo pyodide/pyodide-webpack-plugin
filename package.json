@@ -6,16 +6,16 @@
     ".": {
       "import": {
         "types": "./types/esm/index.d.ts",
-        "default": "./index.mjs"
+        "default": "./plugin.mjs"
       },
       "require": {
         "types": "./types/umd/index.d.ts",
-        "default": "./index.js"
+        "default": "./plugin.js"
       }
     }
   },
   "types": "./types/umd/index.d.ts",
-  "main": "./index.js",
+  "main": "./plugin.js",
   "files": [
     "types",
     "plugin.*"

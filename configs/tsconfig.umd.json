@@ -1,9 +1,9 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "lib": ["ES6", "DOM"],
     "target": "ES6",
-    "module": "umd",
+    "module": "commonjs",
     "moduleResolution": "Node",
     "declarationDir": "../dist/types/umd"
   }
