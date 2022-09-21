@@ -1,6 +1,7 @@
 const path = require("path");
 const _ = require("lodash");
 const CopyPlugin = require("copy-webpack-plugin");
+const nodeExternals = require("webpack-node-externals");
 
 // webpack config overloads when type is es6
 // npx webpack --env output='es6'
@@ -10,6 +11,7 @@ const es6 = {
   },
   output: {
     filename: "plugin.mjs",
+    chunkFormat: "module",
     library: {
       type: "module",
     },
@@ -60,8 +62,8 @@ const umd = {
 module.exports = (env, argv) => {
   const config = _.merge(
     {
-      node: { global: true },
-      mode: env.mode || "production",
+      target: "node",
+      mode: env.mode || "development",
       entry: "./index.ts",
       optimization: {
         minimize: false,
@@ -71,9 +73,6 @@ module.exports = (env, argv) => {
         path: path.join(__dirname, "dist"),
         filename: "plugin.js",
         library: {
-          // commonjs: "pyodide-plugin",
-          // amd: "pyodide-plugin",
-          // root: "PyodidePlugin",
           type: "umd",
         },
         umdNamedDefine: true,
@@ -82,6 +81,8 @@ module.exports = (env, argv) => {
       performance: {
         hints: false,
       },
+      externalsPresets: { node: true },
+      externals: [nodeExternals()],
       plugins: [],
       resolve: {
         extensions: [".ts", ".js"],
@@ -89,7 +90,7 @@ module.exports = (env, argv) => {
       module: {
         rules: [
           {
-            test: /\.tsx?$/,
+            test: /\.ts$/,
             use: [
               {
                 loader: "ts-loader",
@@ -103,6 +104,5 @@ module.exports = (env, argv) => {
     },
     env.output === "es6" ? es6 : umd
   );
-  console.log(env, config);
   return config;
 };
