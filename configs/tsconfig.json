@@ -8,7 +8,9 @@
     "allowJs": true,
     "declaration": true,
     "declarationMap": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false
   },
-  "files": ["../index.ts"]
+  "files": ["../index.ts"],
+  "exclude": ["node_modules"]
 }
