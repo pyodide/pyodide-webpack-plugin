@@ -27,9 +27,10 @@
     "build": "npm-run-all -p build:*",
     "build:umd": "webpack",
     "build:es6": "npm run build:umd -- --env output='es6'",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm-run-all lint format:check",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "format:check": "prettier --ignore-path .gitignore --check \"**/*.+(js|ts|json)\""
   },
   "author": "Michael Neil <@mneil>",
   "license": "MPL-2.0",
