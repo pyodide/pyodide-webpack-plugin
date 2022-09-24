@@ -1,31 +1,35 @@
+[![Node.js CI](https://github.com/pyodide/pyodide-webpack-plugin/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/pyodide/pyodide-webpack-plugin/actions/workflows/build-and-test.yml)
+
 # Pyodide Webpack Plugin
 
 A Webpack plugin for integrating pyodide into your project.
 
+> works with pyodide >=0.21.3
+
 ## Getting Started
 
-Install pyodide and pyodide-webpack-plugin
+Install pyodide and @pyodide/webpack-plugin
 
 ```
-npm install --save-dev pyodide pyodide-webpack-plugin
-```
-
-or
-
-```
-yarn add -D pyodide pyodide-webpack-plugin
+npm install --save-dev pyodide @pyodide/webpack-plugin
 ```
 
 or
 
 ```
-pnpm add -D pyodide pyodide-webpack-plugin
+yarn add -D pyodide @pyodide/webpack-plugin
+```
+
+or
+
+```
+pnpm add -D pyodide @pyodide/webpack-plugin
 ```
 
 Add the plugin to your webpack config
 
 ```js
-const PyodidePlugin = require("pyodide-webpack-plugin");
+const PyodidePlugin = require("@pyodide/webpack-plugin");
 
 module.exports = {
   plugins: [new PyodidePlugin()],
@@ -41,7 +45,7 @@ module.exports = {
 
 Type: `boolean`\
 Default: `true`\
-_Description_: Automatically use the pyodide CDN endpoint for micropip packages. Setting this value to false means you must download micropip and related packages yourself and serve them.
+_Description_: Automatically use the pyodide CDN endpoint for micropip packages. Setting this value to false means you must download micropip and related packages yourself and serve them. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts micropip and pip packages and _does not_ affect the location the main pyodide runtime location.
 
 ### globalLoadPyodide
 

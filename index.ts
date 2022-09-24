@@ -6,9 +6,12 @@ import * as patterns from "./lib/patterns";
 
 interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   /**
-   * Automatically use the pyodide cdn endpoint for micropip package
-   * Setting this value to false means you must download micropip and related
-   * packages yourself and serve them.
+   * Automatically use the pyodide CDN endpoint for micropip packages.
+   * Setting this value to false means you must download micropip and
+   * related packages yourself and serve them. This option differs from
+   * [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html)
+   * in that it only impacts micropip and pip packages and _does not_ affect
+   * the location the main pyodide runtime location.
    *
    * @default true
    */
