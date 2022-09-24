@@ -41,7 +41,7 @@ const umd = {
   },
   plugins: [
     new CopyPlugin({
-      patterns: [{ from: "package.json" }],
+      patterns: [{ from: "package.json" }, { from: "README.md" }],
     }),
   ],
   module: {
