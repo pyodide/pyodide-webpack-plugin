@@ -6,16 +6,16 @@ import * as patterns from "./lib/patterns";
 
 interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   /**
-   * Automatically use the pyodide CDN endpoint for micropip packages.
-   * Setting this value to false means you must download micropip and
-   * related packages yourself and serve them. This option differs from
+   * CDN endpoint for micropip packages
+   * This option differs from
    * [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html)
    * in that it only impacts micropip and pip packages and _does not_ affect
-   * the location the main pyodide runtime location.
+   * the location the main pyodide runtime location. Set this value to "" if you want to keep
+   * the pyodide default of accepting the indexUrl.
    *
-   * @default true
+   * @default https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/
    */
-  autoCdnIndexUrl?: boolean;
+  micropipCdnUrl?: string;
   /**
    * Whether or not to expose loadPyodide method globally. A globalThis.loadPyodide is useful when
    * using pyodide as a standalone script or in certain frameworks. With webpack we can scope the
@@ -42,7 +42,7 @@ export class PyodidePlugin extends CopyPlugin {
     const outRoot = "pyodide";
     const globalLoadPyodide = options.globalLoadPyodide || false;
     const pkg = __non_webpack_require__(path.resolve(PyodidePlugin.pyodidePackagePath, "package.json"));
-    options.patterns = patterns.chooseAndTransform(pkg.version, options.autoCdnIndexUrl).map((pattern) => {
+    options.patterns = patterns.chooseAndTransform(pkg.version, options.micropipCdnUrl).map((pattern) => {
       return {
         from: path.resolve(PyodidePlugin.pyodidePackagePath, pattern.from),
         to: path.join(outRoot, pattern.to),
@@ -50,7 +50,7 @@ export class PyodidePlugin extends CopyPlugin {
       };
     });
     assert.ok(options.patterns.length > 0, `Unsupported version of pyodide. Must use >=${patterns.versions[0]}`);
-    delete options.autoCdnIndexUrl;
+    delete options.micropipCdnUrl;
     delete options.globalLoadPyodide;
     super(options as Required<PyodideOptions>);
     this.globalLoadPyodide = globalLoadPyodide;

@@ -40,21 +40,18 @@ export function choose(version = "0.0.0"): string[] {
  * that is great enough an empty array is returned.
  * @param version
  * @param pattern
- * @param autoIndexUrl
+ * @param micropipCdnUrl
  * @returns {PyodideObjectPattern[]}
  */
-export function transform(version: string, pattern: string[], autoIndexUrl): PyodideObjectPattern[] {
+export function transform(version: string, pattern: string[], micropipCdnUrl): PyodideObjectPattern[] {
   return pattern.map((name) => {
     let transform: Transform | undefined;
-    if (autoIndexUrl && name == "pyodide.asm.js") {
+    if (micropipCdnUrl && name == "pyodide.asm.js") {
       transform = {
         transformer: (input) => {
           return input
             .toString()
-            .replace(
-              "resolvePath(file_name,API.config.indexURL)",
-              `resolvePath(file_name,'https://cdn.jsdelivr.net/pyodide/v${version}/full/')`
-            );
+            .replace("resolvePath(file_name,API.config.indexURL)", `resolvePath(file_name,${micropipCdnUrl})`);
         },
       };
     }
@@ -62,6 +59,7 @@ export function transform(version: string, pattern: string[], autoIndexUrl): Pyo
   });
 }
 
-export function chooseAndTransform(version = "0.0.0", autoIndexUrl = true) {
-  return transform(version, choose(version), autoIndexUrl);
+export function chooseAndTransform(version = "0.0.0", micropipCdnUrl?: string) {
+  micropipCdnUrl = micropipCdnUrl ?? `https://cdn.jsdelivr.net/pyodide/v${version}/full/`;
+  return transform(version, choose(version), micropipCdnUrl);
 }

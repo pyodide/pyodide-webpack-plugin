@@ -38,19 +38,21 @@ module.exports = {
 
 ## Options
 
-- [autoCdnIndexUrl](#autoCdnIndexUrl)
+- [micropipCdnUrl](#micropipCdnUrl)
 - [globalLoadPyodide](#globalLoadPyodide)
 
-### autoCdnIndexUrl
+### micropipCdnUrl
 
-Type: `boolean`\
-Default: `true`\
-_Description_: Automatically use the pyodide CDN endpoint for micropip packages. Setting this value to false means you must download micropip and related packages yourself and serve them. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts micropip and pip packages and _does not_ affect the location the main pyodide runtime location.
+Type: `string`\
+Default: `https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/`\
+Required: false\
+_Description_: CDN endpoint for micropip packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts micropip and pip packages and _does not_ affect the location the main pyodide runtime location.
 
 ### globalLoadPyodide
 
 Type: `boolean`\
 Default: `false`\
+Required: false\
 _Description_:Whether or not to expose loadPyodide method globally. A globalThis.loadPyodide is useful when using pyodide as a standalone script or in certain frameworks. With webpack we can scope the pyodide package locally to prevent leaks (default).
 
 ## Contributing
