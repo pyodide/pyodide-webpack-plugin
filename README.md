@@ -38,15 +38,15 @@ module.exports = {
 
 ## Options
 
-- [micropipCdnUrl](#micropipCdnUrl)
+- [packageIndexUrl](#packageIndexUrl)
 - [globalLoadPyodide](#globalLoadPyodide)
 
-### micropipCdnUrl
+### packageIndexUrl
 
 Type: `string`\
 Default: `https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/`\
 Required: false\
-_Description_: CDN endpoint for micropip packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts micropip and pip packages and _does not_ affect the location the main pyodide runtime location.
+_Description_: CDN endpoint for python packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts pip packages and _does not_ affect the location the main pyodide runtime location. Set this value to "" if you want to keep the pyodide default of accepting the indexUrl.
 
 ### globalLoadPyodide
 
