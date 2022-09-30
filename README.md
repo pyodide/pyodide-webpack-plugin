@@ -36,17 +36,27 @@ module.exports = {
 };
 ```
 
+In your javascript application being bundled with webpack
+
+```js
+async function main() {
+  let pyodide = await loadPyodide({ indexURL: `${window.location.origin}/pyodide` });
+  // Pyodide is now ready to use...
+  console.log(
+    pyodide.runPython(`
+    import sys
+    sys.version
+  `)
+  );
+}
+main();
+```
+
 ## Options
 
-- [packageIndexUrl](#packageIndexUrl)
 - [globalLoadPyodide](#globalLoadPyodide)
-
-### packageIndexUrl
-
-Type: `string`\
-Default: `https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/`\
-Required: false\
-_Description_: CDN endpoint for python packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts pip packages and _does not_ affect the location the main pyodide runtime location. Set this value to "" if you want to keep the pyodide default of accepting the indexUrl.
+- [outDirectory](#outDir)
+- [packageIndexUrl](#packageIndexUrl)
 
 ### globalLoadPyodide
 
@@ -54,6 +64,20 @@ Type: `boolean`\
 Default: `false`\
 Required: false\
 _Description_:Whether or not to expose loadPyodide method globally. A globalThis.loadPyodide is useful when using pyodide as a standalone script or in certain frameworks. With webpack we can scope the pyodide package locally to prevent leaks (default).
+
+### outDir
+
+Type: `string`\
+Default: `pyodide`\
+Required: false\
+_Description_: Relative path to webpack root where you want to output the pyodide files.
+
+### packageIndexUrl
+
+Type: `string`\
+Default: `https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/`\
+Required: false\
+_Description_: CDN endpoint for python packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts pip packages and _does not_ affect the location the main pyodide runtime location. Set this value to "" if you want to keep the pyodide default of accepting the indexUrl.
 
 ## Contributing
 

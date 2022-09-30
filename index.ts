@@ -24,6 +24,11 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
    * @default false
    */
   globalLoadPyodide?: boolean;
+  /**
+   * Relative path to webpack root where you want to output the pyodide files.
+   * Defaults to pyodide
+   */
+  outDirectory?: string;
 }
 
 interface IPrivateSource {
@@ -39,13 +44,16 @@ export class PyodidePlugin extends CopyPlugin {
   readonly globalLoadPyodide: boolean;
 
   constructor(options: PyodideOptions = {}) {
-    const outRoot = "pyodide";
+    let outDirectory = options.outDirectory || "pyodide";
+    if (outDirectory.startsWith("/")) {
+      outDirectory = outDirectory.slice(1);
+    }
     const globalLoadPyodide = options.globalLoadPyodide || false;
     const pkg = __non_webpack_require__(path.resolve(PyodidePlugin.pyodidePackagePath, "package.json"));
     options.patterns = patterns.chooseAndTransform(pkg.version, options.packageIndexUrl).map((pattern) => {
       return {
         from: path.resolve(PyodidePlugin.pyodidePackagePath, pattern.from),
-        to: path.join(outRoot, pattern.to),
+        to: path.join(outDirectory, pattern.to),
         transform: pattern.transform,
       };
     });
