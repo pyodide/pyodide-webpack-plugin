@@ -6,13 +6,16 @@ import * as patterns from "./lib/patterns";
 
 interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   /**
-   * Automatically use the pyodide cdn endpoint for micropip package
-   * Setting this value to false means you must download micropip and related
-   * packages yourself and serve them.
+   * CDN endpoint for python packages
+   * This option differs from
+   * [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html)
+   * in that it only impacts pip packages and _does not_ affect
+   * the location the main pyodide runtime location. Set this value to "" if you want to keep
+   * the pyodide default of accepting the indexUrl.
    *
-   * @default true
+   * @default https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/
    */
-  autoCdnIndexUrl?: boolean;
+  packageIndexUrl?: string;
   /**
    * Whether or not to expose loadPyodide method globally. A globalThis.loadPyodide is useful when
    * using pyodide as a standalone script or in certain frameworks. With webpack we can scope the
@@ -21,6 +24,11 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
    * @default false
    */
   globalLoadPyodide?: boolean;
+  /**
+   * Relative path to webpack root where you want to output the pyodide files.
+   * Defaults to pyodide
+   */
+  outDirectory?: string;
 }
 
 interface IPrivateSource {
@@ -36,18 +44,21 @@ export class PyodidePlugin extends CopyPlugin {
   readonly globalLoadPyodide: boolean;
 
   constructor(options: PyodideOptions = {}) {
-    const outRoot = "pyodide";
+    let outDirectory = options.outDirectory || "pyodide";
+    if (outDirectory.startsWith("/")) {
+      outDirectory = outDirectory.slice(1);
+    }
     const globalLoadPyodide = options.globalLoadPyodide || false;
     const pkg = __non_webpack_require__(path.resolve(PyodidePlugin.pyodidePackagePath, "package.json"));
-    options.patterns = patterns.chooseAndTransform(pkg.version, options.autoCdnIndexUrl).map((pattern) => {
+    options.patterns = patterns.chooseAndTransform(pkg.version, options.packageIndexUrl).map((pattern) => {
       return {
         from: path.resolve(PyodidePlugin.pyodidePackagePath, pattern.from),
-        to: path.join(outRoot, pattern.to),
+        to: path.join(outDirectory, pattern.to),
         transform: pattern.transform,
       };
     });
     assert.ok(options.patterns.length > 0, `Unsupported version of pyodide. Must use >=${patterns.versions[0]}`);
-    delete options.autoCdnIndexUrl;
+    delete options.packageIndexUrl;
     delete options.globalLoadPyodide;
     super(options as Required<PyodideOptions>);
     this.globalLoadPyodide = globalLoadPyodide;

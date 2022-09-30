@@ -40,21 +40,18 @@ export function choose(version = "0.0.0"): string[] {
  * that is great enough an empty array is returned.
  * @param version
  * @param pattern
- * @param autoIndexUrl
+ * @param packageIndexUrl
  * @returns {PyodideObjectPattern[]}
  */
-export function transform(version: string, pattern: string[], autoIndexUrl): PyodideObjectPattern[] {
+export function transform(version: string, pattern: string[], packageIndexUrl): PyodideObjectPattern[] {
   return pattern.map((name) => {
     let transform: Transform | undefined;
-    if (autoIndexUrl && name == "pyodide.asm.js") {
+    if (packageIndexUrl && name == "pyodide.asm.js") {
       transform = {
         transformer: (input) => {
           return input
             .toString()
-            .replace(
-              "resolvePath(file_name,API.config.indexURL)",
-              `resolvePath(file_name,'https://cdn.jsdelivr.net/pyodide/v${version}/full/')`
-            );
+            .replace("resolvePath(file_name,API.config.indexURL)", `resolvePath(file_name,"${packageIndexUrl}")`);
         },
       };
     }
@@ -62,6 +59,7 @@ export function transform(version: string, pattern: string[], autoIndexUrl): Pyo
   });
 }
 
-export function chooseAndTransform(version = "0.0.0", autoIndexUrl = true) {
-  return transform(version, choose(version), autoIndexUrl);
+export function chooseAndTransform(version = "0.0.0", packageIndexUrl?: string) {
+  packageIndexUrl = packageIndexUrl ?? `https://cdn.jsdelivr.net/pyodide/v${version}/full/`;
+  return transform(version, choose(version), packageIndexUrl);
 }
