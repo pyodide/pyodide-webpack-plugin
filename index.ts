@@ -1,3 +1,4 @@
+import fs from "fs";
 import assert from "assert";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
@@ -29,6 +30,16 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
    * Defaults to pyodide
    */
   outDirectory?: string;
+  /**
+   * Pyodide package version to use when resolving the default pyodide package index url. Default
+   * version is whatever version is installed in {pyodideDependencyPath}
+   */
+  version?: string;
+  /**
+   * Path on disk to the pyodide module. By default the plugin will attempt to look
+   * in ./node_modules for pyodide.
+   */
+  pyodideDependencyPath?: string;
 }
 
 interface IPrivateSource {
@@ -39,8 +50,6 @@ interface IPrivateSource {
 }
 
 export class PyodidePlugin extends CopyPlugin {
-  static pyodidePackagePath: string = path.dirname(__non_webpack_require__.resolve("pyodide"));
-
   readonly globalLoadPyodide: boolean;
 
   constructor(options: PyodideOptions = {}) {
@@ -49,10 +58,12 @@ export class PyodidePlugin extends CopyPlugin {
       outDirectory = outDirectory.slice(1);
     }
     const globalLoadPyodide = options.globalLoadPyodide || false;
-    const pkg = __non_webpack_require__(path.resolve(PyodidePlugin.pyodidePackagePath, "package.json"));
+    const pyodidePackagePath = tryGetPyodidePath(options.pyodideDependencyPath);
+    const pkg = tryResolvePyodidePackage(pyodidePackagePath, options.version);
+
     options.patterns = patterns.chooseAndTransform(pkg.version, options.packageIndexUrl).map((pattern) => {
       return {
-        from: path.resolve(PyodidePlugin.pyodidePackagePath, pattern.from),
+        from: path.resolve(pyodidePackagePath, pattern.from),
         to: path.join(outDirectory, pattern.to),
         transform: pattern.transform,
       };
@@ -85,6 +96,43 @@ export class PyodidePlugin extends CopyPlugin {
         }
       );
     });
+  }
+}
+/**
+ * Try to find the pyodide path. Can't use require.resolve because it is not supported in
+ * module builds. Nodes import.meta.resolve is experimental and still very new as of node 19.x
+ * This method is works universally under the assumption of an install in node_modules/pyodide
+ * @param pyodidePath
+ * @returns
+ */
+function tryGetPyodidePath(pyodidePath?: string) {
+  if (pyodidePath) {
+    return path.resolve(pyodidePath);
+  }
+  const modulePath = path.resolve("node_modules");
+  for (const dependencyPath of fs.readdirSync(path.resolve("node_modules"), { withFileTypes: true })) {
+    if (dependencyPath.name === "pyodide" && dependencyPath.isDirectory()) {
+      return path.join(modulePath, dependencyPath.name);
+    }
+  }
+  throw new Error(`Unable to resolve pyodide package path in ${modulePath}`);
+}
+
+/**
+ * Read the pyodide package dependency package.json to return necessary metadata
+ * @param version
+ * @returns
+ */
+function tryResolvePyodidePackage(pyodidePath: string, version?: string) {
+  if (version) {
+    return { version };
+  }
+  const pkgPath = path.resolve(pyodidePath, "package.json");
+  try {
+    const pkg = fs.readFileSync(pkgPath, "utf-8");
+    return JSON.parse(pkg);
+  } catch (e) {
+    throw new Error(`unable to read package.json from pyodide dependency in ${pkgPath}`);
   }
 }
 

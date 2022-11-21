@@ -17,6 +17,7 @@ const es6 = {
       type: "module",
     },
   },
+  externals: [nodeExternals({ importType: "module" })],
   module: {
     rules: [
       {
