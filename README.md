@@ -79,6 +79,45 @@ Default: `https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/`\
 Required: false\
 _Description_: CDN endpoint for python packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts pip packages and _does not_ affect the location the main pyodide runtime location. Set this value to "" if you want to keep the pyodide default of accepting the indexUrl.
 
+## Known issues with esm
+
+Depending on your webpack configuration you may run into issues with webpack trying to parse your pyodide.mjs file.
+
+**Can't resolve 'url' in ...**
+
+[Issue #8](https://github.com/pyodide/pyodide-webpack-plugin/issues/8) deals with this error and pyodide esm. To fix this issue:
+
+- `npm i -D url`
+- Add a [fall back](https://webpack.js.org/configuration/resolve/#resolvefallback) to your webpack config
+  ```js
+  resolve: {
+    fallback: {
+      url: require.resolve("url/"),
+    },
+  },
+  ```
+
+**Cannot find module '<...>/pyodide.asm.js.**
+
+This can happen when webpack munges esm import statements to \_\_webpack_require\_\_ when you actually intend import to work in the browser.
+
+- `npm i -D string-replace-loader`
+- Add a [rule](https://webpack.js.org/configuration/module/#rule) to your webpack config
+  ```js
+  {
+    test: /pyodide\.m?js$/,
+    use: [
+      {
+        loader: 'string-replace-loader',
+        options: {
+          search: 'import(',
+          replace: 'import(/* webpackIgnore: true */ '
+        }
+      }
+    ]
+  }
+  ```
+
 ## Contributing
 
 Please view the [contributing guide](./CONTRIBUTING.md) for tips on filing issues, making changes, and submitting pull requests. Pyodide is an independent and community-driven open-source project. The decision-making process is outlined in the [Project governance](https://pyodide.org/en/stable/project/governance.html).
