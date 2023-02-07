@@ -15,6 +15,14 @@ const files = {
     "pyodide.asm.wasm",
     "repodata.json",
   ],
+  "0.22.1": [
+    "package.json",
+    "pyodide_py.tar",
+    "pyodide.asm.js",
+    "pyodide.asm.data",
+    "pyodide.asm.wasm",
+    "repodata.json",
+  ],
 };
 export const versions = Object.keys(files);
 
