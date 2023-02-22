@@ -71,6 +71,9 @@ export class PyodidePlugin extends CopyPlugin {
     assert.ok(options.patterns.length > 0, `Unsupported version of pyodide. Must use >=${patterns.versions[0]}`);
     delete options.packageIndexUrl;
     delete options.globalLoadPyodide;
+    delete options.outDirectory;
+    delete options.version;
+    delete options.pyodideDependencyPath;
     super(options as Required<PyodideOptions>);
     this.globalLoadPyodide = globalLoadPyodide;
   }
