@@ -55,7 +55,7 @@ main();
 ## Options
 
 - [globalLoadPyodide](#globalLoadPyodide)
-- [outDirectory](#outDir)
+- [outDirectory](#outDirectory)
 - [packageIndexUrl](#packageIndexUrl)
 
 ### globalLoadPyodide
@@ -65,7 +65,7 @@ Default: `false`\
 Required: false\
 _Description_:Whether or not to expose loadPyodide method globally. A globalThis.loadPyodide is useful when using pyodide as a standalone script or in certain frameworks. With webpack we can scope the pyodide package locally to prevent leaks (default).
 
-### outDir
+### outDirectory
 
 Type: `string`\
 Default: `pyodide`\
