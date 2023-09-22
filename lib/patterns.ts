@@ -4,7 +4,13 @@ interface PyodideObjectPattern extends ObjectPattern {
   to: string;
 }
 
-const files = {
+type FileFunction = (pkg: Pkg) => string[];
+
+interface Pkg {
+  files?: string[];
+}
+
+const files: { [key: string]: string[] | FileFunction } = {
   "0.21.3": [
     "distutils.tar",
     "package.json",
@@ -24,6 +30,24 @@ const files = {
     "repodata.json",
   ],
   "0.23.0": ["package.json", "pyodide.asm.js", "pyodide.asm.wasm", "repodata.json", "python_stdlib.zip"],
+  "0.24.0": function (pkg: Pkg) {
+    if (!pkg.files) {
+      return [];
+    }
+    // list of files to ignore
+    const ignore = [/^pyodide.m?js.*/, /.+\.d\.ts$/, /.+\.html$/];
+    // files to ensure are always included
+    const always = ["package.json"];
+    const filtered = pkg.files.filter((file) => {
+      return !ignore.some((v) => file.match(v));
+    });
+    always.forEach((f) => {
+      if (!filtered.includes(f)) {
+        filtered.push(f);
+      }
+    });
+    return filtered;
+  },
 };
 export const versions = Object.keys(files);
 
@@ -34,8 +58,8 @@ export const versions = Object.keys(files);
  * @param version
  * @returns {string[]}
  */
-export function choose(version = "0.0.0"): string[] {
-  let chosen: string[] = [];
+export function choose(version = "0.0.0"): string[] | FileFunction {
+  let chosen: string[] | FileFunction = [];
   for (let i = 0; i < versions.length; i++) {
     if (version >= versions[i]) {
       chosen = files[versions[i]];
@@ -68,7 +92,11 @@ export function transform(version: string, pattern: string[], packageIndexUrl): 
   });
 }
 
-export function chooseAndTransform(version = "0.0.0", packageIndexUrl?: string) {
-  packageIndexUrl = packageIndexUrl ?? `https://cdn.jsdelivr.net/pyodide/v${version}/full/`;
-  return transform(version, choose(version), packageIndexUrl);
+export function chooseAndTransform(pkg, packageIndexUrl?: string) {
+  packageIndexUrl = packageIndexUrl ?? `https://cdn.jsdelivr.net/pyodide/v${pkg.version}/full/`;
+  let files = choose(pkg.version);
+  if (typeof files === "function") {
+    files = files(pkg);
+  }
+  return transform(pkg.version, files, packageIndexUrl);
 }
