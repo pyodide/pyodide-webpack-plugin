@@ -61,7 +61,7 @@ export class PyodidePlugin extends CopyPlugin {
     const pyodidePackagePath = tryGetPyodidePath(options.pyodideDependencyPath);
     const pkg = tryResolvePyodidePackage(pyodidePackagePath, options.version);
 
-    options.patterns = patterns.chooseAndTransform(pkg.version, options.packageIndexUrl).map((pattern) => {
+    options.patterns = patterns.chooseAndTransform(pkg, options.packageIndexUrl).map((pattern) => {
       return {
         from: path.resolve(pyodidePackagePath, pattern.from),
         to: path.join(outDirectory, pattern.to),
