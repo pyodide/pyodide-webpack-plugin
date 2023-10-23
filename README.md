@@ -29,7 +29,7 @@ pnpm add -D pyodide @pyodide/webpack-plugin
 Add the plugin to your webpack config
 
 ```js
-const PyodidePlugin = require("@pyodide/webpack-plugin");
+const { PyodidePlugin } = require("@pyodide/webpack-plugin");
 
 module.exports = {
   plugins: [new PyodidePlugin()],
@@ -51,6 +51,8 @@ async function main() {
 }
 main();
 ```
+
+See [examples](./examples/) for more information.
 
 ## Options
 
@@ -80,6 +82,8 @@ Required: false\
 _Description_: CDN endpoint for python packages. This option differs from [loadPyodide indexUrl](https://pyodide.org/en/stable/usage/api/js-api.html) in that it only impacts pip packages and _does not_ affect the location the main pyodide runtime location. Set this value to "" if you want to keep the pyodide default of accepting the indexUrl.
 
 ## Known issues with esm
+
+> ESM builds are currently failing if you use the pyodide esm module. You can fix this by importing the commonjs build into your project `import { loadPyodide } from "pyodide/pyodide.js";`
 
 Depending on your webpack configuration you may run into issues with webpack trying to parse your pyodide.mjs file.
 

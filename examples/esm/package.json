@@ -1,0 +1,24 @@
+{
+  "name": "pyodide-webpack-plugin-commonjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "webpack",
+    "serve": "webpack serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@pyodide/webpack-plugin": "^1.2.0",
+    "html-webpack-plugin": "^5.5.3",
+    "webpack": "5.88.x",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "4.14.x"
+  },
+  "dependencies": {
+    "pyodide": "^0.24.1"
+  }
+}

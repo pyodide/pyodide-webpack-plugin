@@ -1,9 +1,16 @@
 import fs from "fs";
+import url from "url";
 import assert from "assert";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
-import { Compiler } from "webpack";
+import webpack from "webpack";
 import * as patterns from "./lib/patterns";
+
+let dirname;
+try {
+  // @ts-ignore
+  dirname = path.dirname(url.fileURLToPath(import.meta.url));
+} catch (e) {}
 
 interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   /**
@@ -13,7 +20,7 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
    * in that it only impacts pip packages and _does not_ affect
    * the location the main pyodide runtime location. Set this value to "" if you want to keep
    * the pyodide default of accepting the indexUrl.
-   *
+   *`
    * @default https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/
    */
   packageIndexUrl?: string;
@@ -77,27 +84,24 @@ export class PyodidePlugin extends CopyPlugin {
     super(options as Required<PyodideOptions>);
     this.globalLoadPyodide = globalLoadPyodide;
   }
-  apply(compiler: Compiler) {
+  apply(compiler: webpack.Compiler) {
     super.apply(compiler);
-    if (this.globalLoadPyodide) {
-      return;
-    }
-    // strip global loadPyodide
-    compiler.hooks.make.tap(this.constructor.name, (compilation) => {
-      compilation.hooks.succeedModule.tap(
-        {
-          name: "pyodide-webpack-plugin",
-          stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_COMPATIBILITY,
-        },
-        (module) => {
-          const isPyodide = module.nameForCondition()?.match(/pyodide\/pyodide\.m?js$/);
-          if (!isPyodide) {
-            return;
-          }
-          const source = (module as unknown as IPrivateSource)._source;
-          source._value = source.source().replace("globalThis.loadPyodide=loadPyodide", "({})");
+    compiler.hooks.compilation.tap(this.constructor.name, (compilation, { normalModuleFactory }) => {
+      const compilationHooks = webpack.NormalModule.getCompilationHooks(compilation);
+      compilationHooks.beforeLoaders.tap(this.constructor.name, (loaders, normalModule) => {
+        const matches = normalModule.userRequest.match(/pyodide\.m?js$/);
+        if (matches) {
+          loaders.push({
+            loader: path.resolve(dirname, "loader.js"),
+            options: {
+              globalLoadPyodide: this.globalLoadPyodide,
+              isModule: matches[0].endsWith(".mjs"),
+            },
+            ident: "pyodide",
+            type: null,
+          });
         }
-      );
+      });
     });
   }
 }
