@@ -6,11 +6,8 @@ export default (_, argv) =>
   /** @type {import("webpack").Configuration} */ ({
     target: "web",
     mode: argv.mode || "development",
+    devtool: false,
     entry: path.resolve("index.js"),
-    experiments: {
-      outputModule: true,
-    },
-    bail: false,
     output: {
       path: path.resolve("dist"),
       filename: "example.js",
@@ -19,7 +16,9 @@ export default (_, argv) =>
         type: "module",
       },
     },
-    externalsPresets: {node: true},
+    experiments: {
+      outputModule: true,
+    },
     devServer: {
       static: {
         directory: path.resolve("dist"),
@@ -27,7 +26,10 @@ export default (_, argv) =>
       compress: true,
       port: 9000,
     },
-    plugins: [new PyodidePlugin(), new HtmlWebpackPlugin({
-      scriptLoading: "module"
-    })],
+    plugins: [
+      new PyodidePlugin(),
+      new HtmlWebpackPlugin({
+        scriptLoading: "module",
+      }),
+    ],
   });

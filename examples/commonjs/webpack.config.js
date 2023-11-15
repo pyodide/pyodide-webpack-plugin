@@ -6,6 +6,7 @@ module.exports = (_, argv) =>
   /** @type {import("webpack").Configuration} */ ({
     target: "web",
     mode: argv.mode || "development",
+    devtool: false,
     entry: path.resolve(__dirname, "index.js"),
     output: {
       path: path.resolve(__dirname, "dist"),
