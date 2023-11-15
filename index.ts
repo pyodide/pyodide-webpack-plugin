@@ -92,7 +92,7 @@ export class PyodidePlugin extends CopyPlugin {
         const matches = normalModule.userRequest.match(/pyodide\.m?js$/);
         if (matches) {
           loaders.push({
-            loader: path.resolve(dirname, "loader.js"),
+            loader: path.resolve(dirname, "loader.cjs"),
             options: {
               globalLoadPyodide: this.globalLoadPyodide,
               isModule: matches[0].endsWith(".mjs"),
