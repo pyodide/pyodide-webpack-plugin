@@ -52,7 +52,7 @@ async function main() {
 main();
 ```
 
-See [examples](./examples/) for more information.
+See [examples](./examples/).
 
 ## Options
 

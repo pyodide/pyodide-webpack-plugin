@@ -75,6 +75,7 @@ export class PyodidePlugin extends CopyPlugin {
       };
     });
     assert.ok(options.patterns.length > 0, `Unsupported version of pyodide. Must use >=${patterns.versions[0]}`);
+    // we have to delete all pyodide plugin options before calling super. Rest of options passed to copy webpack plugin
     delete options.packageIndexUrl;
     delete options.globalLoadPyodide;
     delete options.outDirectory;
@@ -90,6 +91,7 @@ export class PyodidePlugin extends CopyPlugin {
       compilationHooks.beforeLoaders.tap(this.constructor.name, (loaders, normalModule) => {
         const matches = normalModule.userRequest.match(/pyodide\.m?js$/);
         if (matches) {
+          // add a new loader specifically to handle pyodide.m?js. See loader.ts for functionalidy
           loaders.push({
             loader: path.resolve(dirname, "loader.cjs"),
             options: {

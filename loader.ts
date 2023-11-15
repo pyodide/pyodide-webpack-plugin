@@ -2,8 +2,8 @@ import { Parser as AcornParser, Node } from "acorn";
 import { importAssertions } from "acorn-import-assertions";
 import esbuild from "esbuild";
 import { LoaderContext } from "webpack";
-const parser = AcornParser.extend(importAssertions as typeof importAssertions);
 const walk = require("acorn-walk");
+const parser = AcornParser.extend(importAssertions as typeof importAssertions);
 
 interface LoaderOptions {
   isModule: boolean;
@@ -82,13 +82,14 @@ export default function (source) {
   // @ts-expect-error this has a type any, but we know this is a loader context
   const self: LoaderContext<LoaderOptions> = fc<LoaderContext<LoaderOptions>>(this);
   const options: LoaderOptions = self.getOptions();
+  let output = "module.exports";
   if (options.isModule) {
-    const code = esbuild.transformSync(source, { banner: "const module={exports:{}};", format: "cjs" }).code;
-    return `export const loadPyodide = eval(${JSON.stringify(code)});\n`;
+    source = esbuild.transformSync(source, { banner: "const module={exports:{}};", format: "cjs" }).code;
+    output = "export const loadPyodide";
   }
   // this._module.parser.state.module = this._module;
-  // parse the original parser... causes errors because we do not want this to
-  // actually be evaluated and added to webpack.
+  // parse with the original parser... causes errors because we do not want this to
+  // actually be evaluated and added to webpack's tree
   // const ast = this._module.parser.parse(source, {
   //   module: this._module,
   //   current: this._module,
@@ -100,5 +101,5 @@ export default function (source) {
   const p = new PyodideParser(source, options);
   p.parse();
   const finalSource = addNamedExports(p.source, options);
-  return `module.exports = eval(${JSON.stringify(finalSource)})`;
+  return `${output} = eval(${JSON.stringify(finalSource)})`;
 }
