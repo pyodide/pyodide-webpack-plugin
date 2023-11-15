@@ -4,6 +4,7 @@ import fs from "fs";
 import nodeExternals from "webpack-node-externals";
 import { fileURLToPath } from "url";
 import { AfterBuild } from "./after-build.js";
+import { moveToExample } from "./examples.js";
 import pkg from "../package.json" assert { type: "json" };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,23 +47,8 @@ export const loader = (env, argv) =>
         delete pkg.type;
         delete pkg.prettier;
         fs.writeFileSync(path.resolve(compiler.outputPath, "package.json"), JSON.stringify(pkg, undefined, 2));
-        fs.writeFileSync(
-          path.resolve(
-            __dirname,
-            "..",
-            "examples",
-            "commonjs",
-            "node_modules",
-            "@pyodide",
-            "webpack-plugin",
-            "loader.cjs"
-          ),
-          fs.readFileSync(path.join(compiler.outputPath, "loader.cjs"))
-        );
-        fs.writeFileSync(
-          path.resolve(__dirname, "..", "examples", "esm", "node_modules", "@pyodide", "webpack-plugin", "loader.cjs"),
-          fs.readFileSync(path.join(compiler.outputPath, "loader.cjs"))
-        );
+        moveToExample(compiler.outputPath, "loader.cjs");
+        moveToExample(compiler.outputPath, "package.json");
       }),
       // new ExtraWatchWebpackPlugin({
       //   files: ["loader.cjs"],

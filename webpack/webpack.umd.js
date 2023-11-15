@@ -1,9 +1,9 @@
 import path from "path";
-import fs from "fs";
 import url from "url";
 import _ from "lodash";
 import nodeExternals from "webpack-node-externals";
 import { AfterBuild } from "./after-build.js";
+import { moveToExample } from "./examples.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,23 +39,7 @@ export const umd = (_, argv) =>
         // copy the build plugin into the examples folder. This has to happen
         // because otherwise webpack will fail on the type of Configuration object not matching in memory
         // this is a static type check in the runtime that causing the issue.
-        fs.writeFileSync(
-          path.resolve(
-            __dirname,
-            "..",
-            "examples",
-            "commonjs",
-            "node_modules",
-            "@pyodide",
-            "webpack-plugin",
-            "plugin.js"
-          ),
-          fs.readFileSync(path.join(compiler.outputPath, "plugin.js"))
-        );
-        fs.writeFileSync(
-          path.resolve(__dirname, "..", "examples", "esm", "node_modules", "@pyodide", "webpack-plugin", "plugin.js"),
-          fs.readFileSync(path.join(compiler.outputPath, "plugin.js"))
-        );
+        moveToExample(compiler.outputPath, "plugin.js");
       }),
     ],
     resolve: {
