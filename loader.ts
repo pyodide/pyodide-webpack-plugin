@@ -1,7 +1,8 @@
 import { Parser as AcornParser, Node } from "acorn";
 import { importAssertions } from "acorn-import-assertions";
 import esbuild from "esbuild";
-const parser = AcornParser.extend(importAssertions as any);
+import { LoaderContext } from "webpack";
+const parser = AcornParser.extend(importAssertions as typeof importAssertions);
 const walk = require("acorn-walk");
 
 interface LoaderOptions {
@@ -24,13 +25,11 @@ class PyodideParser {
     this.source = source;
   }
   parse() {
+    // eslint-disable-next-line
     const self = this;
     walk.simple(this.ast, {
       ExpressionStatement(node) {
         self.walkExpressionStatement(node);
-      },
-      ExportNamedDeclaration(node) {
-        self.walkExportNamedDeclaration(node);
       },
     });
   }
@@ -42,29 +41,17 @@ class PyodideParser {
     this.delta += str.length - len;
     return str;
   }
-  walkExportNamedDeclaration(statement) {
-    // let exports = "";
-    // statement.specifiers?.forEach((spec) => {
-    //   exports = `${exports};module.exports.${spec.local.name}=${spec.exported.name}`;
-    // });
-    // this.replace(statement, exports);
-  }
   walkExpressionStatement(statement) {
     // getting dumb here. Just want to do some quick things.
     if (this.options.globalLoadPyodide) {
       return;
     }
-    let assignment = statement.expression?.left?.object;
+    const assignment = statement.expression?.left?.object;
     if (assignment?.type !== "Identifier" || assignment?.name !== "globalThis") {
       return;
     }
     // remove global load pyodide
     this.replace(statement, "({});");
-    // const len = statement.end - statement.start;
-    // const start = this.source.slice(0, statement.start);
-    // const end = this.source.slice(statement.end);
-    // const repl = "({});".padEnd(len, " ");
-    // this.source = `${start}${repl}${end}`;
   }
 }
 
@@ -77,7 +64,7 @@ function addNamedExports(source, options) {
     // esm module already has exports like we expect
     return source;
   }
-  let newSource = source.split("\n");
+  const newSource = source.split("\n");
   const commonExports = "module.exports = {loadPyodide: loadPyodide.loadPyodide};";
   for (let i = 0; i < newSource.length; i++) {
     if (!newSource[i].includes("sourceMappingURL")) continue;
@@ -86,10 +73,15 @@ function addNamedExports(source, options) {
   }
   return newSource.join("\n");
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fc<T>(v: any) {
+  return v as T;
+}
 
 export default function (source) {
-  // @ts-expect-error
-  const options: LoaderOptions = (this as any).getOptions();
+  // @ts-expect-error this has a type any, but we know this is a loader context
+  const self: LoaderContext<LoaderOptions> = fc<LoaderContext<LoaderOptions>>(this);
+  const options: LoaderOptions = self.getOptions();
   if (options.isModule) {
     const code = esbuild.transformSync(source, { banner: "const module={exports:{}};", format: "cjs" }).code;
     return `export const loadPyodide = eval(${JSON.stringify(code)});\n`;

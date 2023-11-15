@@ -1,6 +1,7 @@
-const shared = require("./shared");
-const _ = require("lodash");
+import shared from "./shared.js";
+import _ from "lodash";
 
-module.exports = _.merge({}, shared.config, {
-  plugins: [new shared.PyodidePlugin()],
-});
+export default (outDir = undefined) =>
+  _.merge({}, shared.config(outDir), {
+    plugins: [new shared.PyodidePlugin()],
+  });

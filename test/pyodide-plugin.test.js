@@ -1,11 +1,22 @@
-const assert = require("assert");
-const webpack = require("webpack");
+import fs from "fs";
+import os from "os";
+import path from "path";
+import assert from "assert";
+import webpack from "webpack";
 
-const options = require("./configs/webpack.defaults");
+import options from "./configs/webpack.defaults.js";
 
 describe("pyodide webpack plugin", () => {
+  let tmpDir;
+  beforeEach(async () => {
+    tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "pyodide-webpack-plugin"));
+  });
+  afterEach(async () => {
+    await fs.promises.rm(tmpDir, { recursive: true, force: true });
+  });
+
   it("Compiles routes nested at one level", (done) => {
-    webpack(options, function (err, stats) {
+    webpack(options(tmpDir), function (err, stats) {
       try {
         assert.ok(!err, err);
         assert.ok(stats, "no stats");

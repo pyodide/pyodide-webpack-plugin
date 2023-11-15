@@ -1,7 +1,6 @@
 const { loadPyodide } = require("pyodide");
 
 async function main() {
-  console.log(loadPyodide);
   let pyodide = await loadPyodide({
     indexURL: `${window.location.origin}/pyodide`,
   });

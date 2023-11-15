@@ -6,11 +6,17 @@ import CopyPlugin from "copy-webpack-plugin";
 import webpack from "webpack";
 import * as patterns from "./lib/patterns";
 
+function noop(_) {
+  return _;
+}
+
 let dirname;
 try {
-  // @ts-ignore
+  // @ts-ignore import.meta is only available in esm...
   dirname = path.dirname(url.fileURLToPath(import.meta.url));
-} catch (e) {}
+} catch (e) {
+  noop(e);
+}
 
 interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   /**
@@ -49,13 +55,6 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   pyodideDependencyPath?: string;
 }
 
-interface IPrivateSource {
-  _source: {
-    _value: string;
-    source: () => string;
-  };
-}
-
 export class PyodidePlugin extends CopyPlugin {
   readonly globalLoadPyodide: boolean;
 
@@ -86,7 +85,7 @@ export class PyodidePlugin extends CopyPlugin {
   }
   apply(compiler: webpack.Compiler) {
     super.apply(compiler);
-    compiler.hooks.compilation.tap(this.constructor.name, (compilation, { normalModuleFactory }) => {
+    compiler.hooks.compilation.tap(this.constructor.name, (compilation) => {
       const compilationHooks = webpack.NormalModule.getCompilationHooks(compilation);
       compilationHooks.beforeLoaders.tap(this.constructor.name, (loaders, normalModule) => {
         const matches = normalModule.userRequest.match(/pyodide\.m?js$/);
