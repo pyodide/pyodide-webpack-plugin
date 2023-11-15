@@ -1,14 +1,16 @@
 import path from "path";
+import fs from "fs";
 import url from "url";
 import _ from "lodash";
 import nodeExternals from "webpack-node-externals";
+import { AfterBuild } from "./after-build.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 /**
  * webpack config overloads when type is undefined npm run build
  */
-export const umd = (env, argv) =>
+export const umd = (_, argv) =>
   /**@type {import("webpack").Configuration}*/ ({
     target: "node",
     mode: argv.mode || "development",
@@ -32,7 +34,27 @@ export const umd = (env, argv) =>
     },
     externalsPresets: { node: true },
     externals: [nodeExternals()],
-    plugins: [],
+    plugins: [
+      new AfterBuild((compiler) => {
+        fs.writeFileSync(
+          path.resolve(
+            __dirname,
+            "..",
+            "examples",
+            "commonjs",
+            "node_modules",
+            "@pyodide",
+            "webpack-plugin",
+            "plugin.js"
+          ),
+          fs.readFileSync(path.join(compiler.outputPath, "plugin.js"))
+        );
+        fs.writeFileSync(
+          path.resolve(__dirname, "..", "examples", "esm", "node_modules", "@pyodide", "webpack-plugin", "plugin.js"),
+          fs.readFileSync(path.join(compiler.outputPath, "plugin.js"))
+        );
+      }),
+    ],
     resolve: {
       extensions: [".ts", ".js"],
     },

@@ -1,15 +1,17 @@
 import path from "path";
+import fs from "fs";
 import _ from "lodash";
 import nodeExternals from "webpack-node-externals";
 import webpack from "webpack";
 import { fileURLToPath } from "url";
+import { AfterBuild } from "./after-build.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // webpack config overloads when type is es6
 // npx webpack --env output='es6'
 
-export const esm = (env, argv) =>
+export const esm = (_, argv) =>
   /** @type {import("webpack").Configuration} */ ({
     target: "node",
     mode: argv.mode || "development",
@@ -39,6 +41,25 @@ export const esm = (env, argv) =>
       new webpack.DefinePlugin({
         MODULE: JSON.stringify(true),
       }),
+      new AfterBuild((compiler) => {
+        fs.writeFileSync(
+          path.resolve(
+            __dirname,
+            "..",
+            "examples",
+            "commonjs",
+            "node_modules",
+            "@pyodide",
+            "webpack-plugin",
+            "plugin.mjs"
+          ),
+          fs.readFileSync(path.join(compiler.outputPath, "plugin.mjs"))
+        );
+        fs.writeFileSync(
+          path.resolve(__dirname, "..", "examples", "esm", "node_modules", "@pyodide", "webpack-plugin", "plugin.mjs"),
+          fs.readFileSync(path.join(compiler.outputPath, "plugin.mjs"))
+        );
+      }),
     ],
     resolve: {
       extensions: [".ts", ".js"],
@@ -60,7 +81,6 @@ export const esm = (env, argv) =>
                   lib: ["ES2022", "DOM"],
                   target: "ES2022",
                   module: "ES2022",
-                  moduleResolution: "NodeNext",
                   declarationDir: "./dist/types/esm",
                 },
               },
