@@ -1,5 +1,6 @@
 import { Parser as AcornParser, Node } from "acorn";
 import { importAssertions } from "acorn-import-assertions";
+import esbuild from "esbuild";
 const parser = AcornParser.extend(importAssertions as any);
 const walk = require("acorn-walk");
 
@@ -86,9 +87,12 @@ function addNamedExports(source, options) {
   return newSource.join("\n");
 }
 
-module.exports = function (source) {
+export default function (source) {
+  // @ts-expect-error
   const options: LoaderOptions = (this as any).getOptions();
   if (options.isModule) {
+    const code = esbuild.transformSync(source, { banner: "const module={exports:{}};", format: "cjs" }).code;
+    return `export const loadPyodide = eval(${JSON.stringify(code)});\n`;
   }
   // this._module.parser.state.module = this._module;
   // parse the original parser... causes errors because we do not want this to
@@ -105,4 +109,4 @@ module.exports = function (source) {
   p.parse();
   const finalSource = addNamedExports(p.source, options);
   return `module.exports = eval(${JSON.stringify(finalSource)})`;
-};
+}
