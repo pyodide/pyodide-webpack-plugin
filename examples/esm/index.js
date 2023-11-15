@@ -1,7 +1,6 @@
-import { loadPyodide } from "pyodide/pyodide.js";
+import { loadPyodide } from "pyodide";
 
 export async function main() {
-  console.log(loadPyodide);
   let pyodide = await loadPyodide({
     indexURL: `${window.location.origin}/pyodide`,
   });
