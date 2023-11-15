@@ -36,6 +36,9 @@ export const umd = (_, argv) =>
     externals: [nodeExternals()],
     plugins: [
       new AfterBuild((compiler) => {
+        // copy the build plugin into the examples folder. This has to happen
+        // because otherwise webpack will fail on the type of Configuration object not matching in memory
+        // this is a static type check in the runtime that causing the issue.
         fs.writeFileSync(
           path.resolve(
             __dirname,

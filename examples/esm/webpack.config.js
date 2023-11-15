@@ -33,3 +33,5 @@ export default (_, argv) =>
       }),
     ],
   });
+
+export { default as webpack } from "webpack";

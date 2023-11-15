@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { PyodidePlugin } = require("@pyodide/webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = (_, argv) =>
   /** @type {import("webpack").Configuration} */ ({
@@ -21,3 +22,5 @@ module.exports = (_, argv) =>
     },
     plugins: [new PyodidePlugin(), new HtmlWebpackPlugin()],
   });
+
+module.exports.webpack = webpack;

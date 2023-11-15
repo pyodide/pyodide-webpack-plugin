@@ -7,14 +7,34 @@ Thank you for your interest in contributing to Pyodide Webpack Plugin! There are
 To contribute code, see the following steps,
 
 1. Fork the Pyodide repository https://github.com/pyodide/pyodide-webpack-plugin on Github.
-2. Clone your fork of Pyodide\
+2. Clone your fork of Pyodide Webpack Plugin\
    `git clone https://github.com/<your-username>/pyodide-webpack-plugin.git`\
    and add the upstream remote,\
    `git remote add upstream https://github.com/pyodide/pyodide-webpack-plugin.git`
-3. Nodejs [16.x+](https://nodejs.org/en/)
+3. Nodejs [18.x+](https://nodejs.org/en/)
 4. Install requirements\
    `npm i`
 5. See Testing and benchmarking documentation.
+
+## Testing
+
+Run the full suite of tests including a fresh build, lint, formatting, and unit tests with:
+
+```
+npm test
+```
+
+You can run individual steps of the test by looking in [package.json](./package.json) for different scripts. `npm run unit` is useful for rerunning unit tests quickly.
+
+### Unit Tests
+
+Unit testing currently tests against the [examples](./examples/). There are a few things to note:
+
+- Tests happen against the built plugin. You must run `npm run build` before you test if any of your code has changes
+- Your example must contain a `webpack.config.js` and must export webpack itself
+- New examples need to be added to the build output in the [webpack](./webpack/) configuration
+
+> running `npx webpack --watch` can be faster than running `npm run build` if you are iterating over the plugin and testing
 
 ## Code of Conduct
 

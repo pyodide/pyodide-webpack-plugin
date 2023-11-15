@@ -42,6 +42,9 @@ export const esm = (_, argv) =>
         MODULE: JSON.stringify(true),
       }),
       new AfterBuild((compiler) => {
+        // copy the build plugin into the examples folder. This has to happen
+        // because otherwise webpack will fail on the type of Configuration object not matching in memory
+        // this is a static type check in the runtime that causing the issue.
         fs.writeFileSync(
           path.resolve(
             __dirname,
