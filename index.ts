@@ -5,6 +5,7 @@ import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
 import webpack from "webpack";
 import * as patterns from "./lib/patterns";
+import { createRequire } from "node:module";
 
 function noop(_) {
   return _;
@@ -117,13 +118,56 @@ function tryGetPyodidePath(pyodidePath?: string) {
   if (pyodidePath) {
     return path.resolve(pyodidePath);
   }
-  const modulePath = path.resolve("node_modules");
-  for (const dependencyPath of fs.readdirSync(path.resolve("node_modules"), { withFileTypes: true })) {
-    if (dependencyPath.name === "pyodide" && dependencyPath.isDirectory()) {
-      return path.join(modulePath, dependencyPath.name);
+
+  let pyodideEntrypoint: string = "";
+  if (typeof require) {
+    try {
+      pyodideEntrypoint = __non_webpack_require__.resolve("pyodide");
+    } catch (e) {
+      noop(e);
+    }
+  } else {
+    try {
+      console.log("RESOLVE THIS ESM STYLE");
+      // @ts-ignore import.meta is only available in esm...
+      const r = createRequire(import.meta.url);
+      pyodideEntrypoint = r.resolve("pyodide");
+    } catch (e) {
+      noop(e);
     }
   }
-  throw new Error(`Unable to resolve pyodide package path in ${modulePath}`);
+  const walk = (p: string) => {
+    const stat = fs.statSync(p);
+    if (stat.isFile()) {
+      return walk(path.dirname(p));
+    }
+    if (stat.isDirectory()) {
+      if (path.basename(p) === "node_modules") {
+        throw new Error(
+          "unable to locate pyodide package. You can define it manually with pyodidePath if you're trying to test something novel"
+        );
+      }
+      for (const dirent of fs.readdirSync(p, { withFileTypes: true })) {
+        if (dirent.name !== "package.json" || dirent.isDirectory()) {
+          continue;
+        }
+        try {
+          const pkg = fs.readFileSync(path.join(p, dirent.name), "utf-8");
+          const pkgJson = JSON.parse(pkg);
+          if (pkgJson.name === "pyodide") {
+            // found pyodide package root. Exit this thing
+            return p;
+          }
+        } catch (e) {
+          throw new Error(
+            "unable to locate and parse pyodide package.json. You can define it manually with pyodidePath if you're trying to test something novel"
+          );
+        }
+      }
+      return walk(path.dirname(p));
+    }
+  };
+  return walk(pyodideEntrypoint);
 }
 
 /**
