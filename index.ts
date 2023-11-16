@@ -27,7 +27,7 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
    * in that it only impacts pip packages and _does not_ affect
    * the location the main pyodide runtime location. Set this value to "" if you want to keep
    * the pyodide default of accepting the indexUrl.
-   *`
+   *
    * @default https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/
    */
   packageIndexUrl?: string;
@@ -128,7 +128,6 @@ function tryGetPyodidePath(pyodidePath?: string) {
     }
   } else {
     try {
-      console.log("RESOLVE THIS ESM STYLE");
       // @ts-ignore import.meta is only available in esm...
       const r = createRequire(import.meta.url);
       pyodideEntrypoint = r.resolve("pyodide");
