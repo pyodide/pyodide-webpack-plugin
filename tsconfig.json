@@ -9,8 +9,15 @@
     "declaration": true,
     "declarationMap": true,
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+
+    "lib": ["ES6", "DOM"],
+    "target": "ES6",
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "declarationDir": "./dist/types/umd"
   },
-  "files": ["../index.ts"],
+  "files": ["./index.ts", "./loader.ts"],
+  "include": ["./lib/**/*.ts"],
   "exclude": ["node_modules"]
 }

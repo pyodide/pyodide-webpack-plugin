@@ -19,6 +19,24 @@
       "runtimeExecutable": "npm",
       "skipFiles": ["<node_internals>/**"],
       "type": "node"
+    },
+    {
+      "name": "Example: common:build",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "build"],
+      "runtimeExecutable": "npm",
+      "cwd": "${workspaceFolder}/examples/commonjs",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
+      "name": "Example: esm:build",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "build"],
+      "runtimeExecutable": "npm",
+      "cwd": "${workspaceFolder}/examples/esm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
     }
   ]
 }

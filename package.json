@@ -1,7 +1,8 @@
 {
   "name": "@pyodide/webpack-plugin",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Webpack plugin for integrating pyodide into your project",
+  "type": "module",
   "exports": {
     ".": {
       "import": {
@@ -18,15 +19,14 @@
   "main": "./plugin.js",
   "files": [
     "types",
-    "plugin.*"
+    "plugin.*",
+    "loader.cjs"
   ],
   "prettier": {
     "printWidth": 120
   },
   "scripts": {
-    "build": "npm-run-all -p build:*",
-    "build:umd": "webpack",
-    "build:es6": "npm run build:umd -- --env output='es6'",
+    "build": "webpack",
     "test": "npm-run-all lint format:check build unit",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
@@ -42,11 +42,13 @@
     "@typescript-eslint/parser": "^5.38.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
+    "extra-watch-webpack-plugin": "^1.0.3",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "pyodide": "^0.24.0",
+    "string-replace-loader": "^3.1.0",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.3",
     "webpack": "^5.74.0",
@@ -54,9 +56,15 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "copy-webpack-plugin": "^11.0.0"
+    "acorn-walk": "^8.2.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "esbuild": "^0.19.5"
   },
   "peerDependencies": {
     "pyodide": ">=0.21.3"
-  }
+  },
+  "workspaces": [
+    "examples/esm",
+    "examples/commonjs"
+  ]
 }

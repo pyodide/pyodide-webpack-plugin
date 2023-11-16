@@ -6,15 +6,28 @@
   },
   "env": {
     "node": true,
-    "es6": true
+    "es6": true,
+    "browser": true
   },
   "plugins": ["@typescript-eslint"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   "rules": {
-    "@typescript-eslint/no-var-requires": 0
+    "no-constant-condition": 0,
+    "@typescript-eslint/no-var-requires": 0,
+    "@typescript-eslint/no-unused-vars": [
+      "warn", // or "error"
+      {
+        "argsIgnorePattern": "^_{1,}$",
+        "varsIgnorePattern": "^_{1,}$",
+        "caughtErrorsIgnorePattern": "^_{1,}$"
+      }
+    ],
+    "@typescript-eslint/ban-ts-comment": 0
   },
   "globals": {
     "describe": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
     "it": "readonly"
   }
 }

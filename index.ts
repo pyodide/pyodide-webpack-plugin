@@ -1,9 +1,23 @@
 import fs from "fs";
+import url from "url";
 import assert from "assert";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
-import { Compiler } from "webpack";
+import webpack from "webpack";
 import * as patterns from "./lib/patterns";
+import { createRequire } from "node:module";
+
+function noop(_) {
+  return _;
+}
+
+let dirname;
+try {
+  // @ts-ignore import.meta is only available in esm...
+  dirname = path.dirname(url.fileURLToPath(import.meta.url));
+} catch (e) {
+  noop(e);
+}
 
 interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   /**
@@ -13,7 +27,7 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
    * in that it only impacts pip packages and _does not_ affect
    * the location the main pyodide runtime location. Set this value to "" if you want to keep
    * the pyodide default of accepting the indexUrl.
-   *
+   *`
    * @default https://cdn.jsdelivr.net/pyodide/v${installedPyodideVersion}/full/
    */
   packageIndexUrl?: string;
@@ -42,13 +56,6 @@ interface PyodideOptions extends Partial<CopyPlugin.PluginOptions> {
   pyodideDependencyPath?: string;
 }
 
-interface IPrivateSource {
-  _source: {
-    _value: string;
-    source: () => string;
-  };
-}
-
 export class PyodidePlugin extends CopyPlugin {
   readonly globalLoadPyodide: boolean;
 
@@ -69,6 +76,7 @@ export class PyodidePlugin extends CopyPlugin {
       };
     });
     assert.ok(options.patterns.length > 0, `Unsupported version of pyodide. Must use >=${patterns.versions[0]}`);
+    // we have to delete all pyodide plugin options before calling super. Rest of options passed to copy webpack plugin
     delete options.packageIndexUrl;
     delete options.globalLoadPyodide;
     delete options.outDirectory;
@@ -77,27 +85,25 @@ export class PyodidePlugin extends CopyPlugin {
     super(options as Required<PyodideOptions>);
     this.globalLoadPyodide = globalLoadPyodide;
   }
-  apply(compiler: Compiler) {
+  apply(compiler: webpack.Compiler) {
     super.apply(compiler);
-    if (this.globalLoadPyodide) {
-      return;
-    }
-    // strip global loadPyodide
-    compiler.hooks.make.tap(this.constructor.name, (compilation) => {
-      compilation.hooks.succeedModule.tap(
-        {
-          name: "pyodide-webpack-plugin",
-          stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_COMPATIBILITY,
-        },
-        (module) => {
-          const isPyodide = module.nameForCondition()?.match(/pyodide\/pyodide\.m?js$/);
-          if (!isPyodide) {
-            return;
-          }
-          const source = (module as unknown as IPrivateSource)._source;
-          source._value = source.source().replace("globalThis.loadPyodide=loadPyodide", "({})");
+    compiler.hooks.compilation.tap(this.constructor.name, (compilation) => {
+      const compilationHooks = webpack.NormalModule.getCompilationHooks(compilation);
+      compilationHooks.beforeLoaders.tap(this.constructor.name, (loaders, normalModule) => {
+        const matches = normalModule.userRequest.match(/pyodide\.m?js$/);
+        if (matches) {
+          // add a new loader specifically to handle pyodide.m?js. See loader.ts for functionalidy
+          loaders.push({
+            loader: path.resolve(dirname, "loader.cjs"),
+            options: {
+              globalLoadPyodide: this.globalLoadPyodide,
+              isModule: matches[0].endsWith(".mjs"),
+            },
+            ident: "pyodide",
+            type: null,
+          });
         }
-      );
+      });
     });
   }
 }
@@ -112,13 +118,56 @@ function tryGetPyodidePath(pyodidePath?: string) {
   if (pyodidePath) {
     return path.resolve(pyodidePath);
   }
-  const modulePath = path.resolve("node_modules");
-  for (const dependencyPath of fs.readdirSync(path.resolve("node_modules"), { withFileTypes: true })) {
-    if (dependencyPath.name === "pyodide" && dependencyPath.isDirectory()) {
-      return path.join(modulePath, dependencyPath.name);
+
+  let pyodideEntrypoint = "";
+  if (typeof require) {
+    try {
+      pyodideEntrypoint = __non_webpack_require__.resolve("pyodide");
+    } catch (e) {
+      noop(e);
+    }
+  } else {
+    try {
+      console.log("RESOLVE THIS ESM STYLE");
+      // @ts-ignore import.meta is only available in esm...
+      const r = createRequire(import.meta.url);
+      pyodideEntrypoint = r.resolve("pyodide");
+    } catch (e) {
+      noop(e);
     }
   }
-  throw new Error(`Unable to resolve pyodide package path in ${modulePath}`);
+  const walk = (p: string) => {
+    const stat = fs.statSync(p);
+    if (stat.isFile()) {
+      return walk(path.dirname(p));
+    }
+    if (stat.isDirectory()) {
+      if (path.basename(p) === "node_modules") {
+        throw new Error(
+          "unable to locate pyodide package. You can define it manually with pyodidePath if you're trying to test something novel"
+        );
+      }
+      for (const dirent of fs.readdirSync(p, { withFileTypes: true })) {
+        if (dirent.name !== "package.json" || dirent.isDirectory()) {
+          continue;
+        }
+        try {
+          const pkg = fs.readFileSync(path.join(p, dirent.name), "utf-8");
+          const pkgJson = JSON.parse(pkg);
+          if (pkgJson.name === "pyodide") {
+            // found pyodide package root. Exit this thing
+            return p;
+          }
+        } catch (e) {
+          throw new Error(
+            "unable to locate and parse pyodide package.json. You can define it manually with pyodidePath if you're trying to test something novel"
+          );
+        }
+      }
+      return walk(path.dirname(p));
+    }
+  };
+  return walk(pyodideEntrypoint);
 }
 
 /**
