@@ -9,7 +9,7 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 describe("examples", () => {
   let tmpDir;
   const exampleDir = path.resolve(__dirname, "..", "examples");
-  const examples = fs.readdirSync(exampleDir);
+  const examples = fs.readdirSync(exampleDir, { withFileTypes: true });
   // console.log(examples);
   beforeEach(async () => {
     tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "pyodide-webpack-plugin"));
@@ -19,7 +19,10 @@ describe("examples", () => {
   });
 
   for (const example of examples) {
-    it(`should build ${example}`, async () => {
+    if (!example.isDirectory()) {
+      continue;
+    }
+    it(`should build ${example.name}`, async () => {
       // get the current directory
       const curDir = process.cwd();
       // wrap the whole test to ensure we can teardown safely
@@ -27,9 +30,9 @@ describe("examples", () => {
       const err = await new Promise(async (resolve) => {
         try {
           // change into example directory. This is why the test setup is so ugly
-          process.chdir(path.join(exampleDir, example));
+          process.chdir(path.join(exampleDir, example.name));
           // load our webpack config from the example directory
-          const config = await import(path.join(exampleDir, example, "webpack.config.js"));
+          const config = await import(path.join(exampleDir, example.name, "webpack.config.js"));
           // the config MUST export webpack itself. Have to or you get runtime type assertion errors
           config.webpack(config.default({}, {}), function (err, stats) {
             // wrap it all again in a try/catch because webpack requires a callback currently :(

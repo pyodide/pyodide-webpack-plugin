@@ -119,7 +119,7 @@ function tryGetPyodidePath(pyodidePath?: string) {
     return path.resolve(pyodidePath);
   }
 
-  let pyodideEntrypoint: string = "";
+  let pyodideEntrypoint = "";
   if (typeof require) {
     try {
       pyodideEntrypoint = __non_webpack_require__.resolve("pyodide");
