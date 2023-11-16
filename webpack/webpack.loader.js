@@ -46,6 +46,7 @@ export const loader = (env, argv) =>
         delete pkg.overrides;
         delete pkg.type;
         delete pkg.prettier;
+        delete pkg.workspaces;
         fs.writeFileSync(path.resolve(compiler.outputPath, "package.json"), JSON.stringify(pkg, undefined, 2));
         moveToExample(compiler.outputPath, "loader.cjs");
         moveToExample(compiler.outputPath, "package.json");

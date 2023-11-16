@@ -30,11 +30,12 @@ You can run individual steps of the test by looking in [package.json](./package.
 
 Unit testing currently tests against the [examples](./examples/). There are a few things to note:
 
-- Tests happen against the built plugin. You must run `npm run build` before you test if any of your code has changes
+- Tests happen against the built plugin. You must run `npm run build` before you test if any of your code has changes. `npm test` runs the build as part of the test phase.
 - Your example must contain a `webpack.config.js` and must export webpack itself
-- New examples need to be added to the build output in the [webpack](./webpack/) configuration
+- New examples need to be initialized with npm workspaces `npm init -w examples/<example name>`
+- New examples are automatically picked up for the build targets and test phase
 
-> running `npx webpack --watch` can be faster than running `npm run build` if you are iterating over the plugin and testing
+> running `npx webpack --watch` can be faster than running `npm run build` if you are iterating over the plugin and testing. Use in conjunction with `npm run unit` for fast test iteration.
 
 ## Code of Conduct
 

@@ -1,7 +1,6 @@
 {
   "name": "pyodide-webpack-plugin-commonjs",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "webpack",
@@ -19,5 +18,6 @@
   },
   "dependencies": {
     "pyodide": "^0.24.1"
-  }
+  },
+  "description": ""
 }

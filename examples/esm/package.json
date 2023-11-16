@@ -1,7 +1,6 @@
 {
-  "name": "pyodide-webpack-plugin-commonjs",
+  "name": "pyodide-webpack-plugin-esm",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -20,5 +19,6 @@
   },
   "dependencies": {
     "pyodide": "^0.24.1"
-  }
+  },
+  "description": ""
 }
