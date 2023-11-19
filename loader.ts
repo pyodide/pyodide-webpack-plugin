@@ -65,7 +65,7 @@ function addNamedExports(source, options) {
     return source;
   }
   const newSource = source.split("\n");
-  const commonExports = "module.exports = {loadPyodide: loadPyodide.loadPyodide};";
+  const commonExports = "module.exports = {loadPyodide: loadPyodide.loadPyodide, version: loadPyodide.version};";
   for (let i = 0; i < newSource.length; i++) {
     if (!newSource[i].includes("sourceMappingURL")) continue;
     newSource.splice(i, 0, commonExports);
@@ -82,10 +82,17 @@ export default function (source) {
   // @ts-expect-error this has a type any, but we know this is a loader context
   const self: LoaderContext<LoaderOptions> = fc<LoaderContext<LoaderOptions>>(this);
   const options: LoaderOptions = self.getOptions();
-  let output = "module.exports";
+  let banner = "module.exports =";
+  let footer = "";
   if (options.isModule) {
-    source = esbuild.transformSync(source, { banner: "const module={exports:{}};", format: "cjs" }).code;
-    output = "export const loadPyodide";
+    source = esbuild.transformSync(source, {
+      banner: "const module={exports:{}};",
+      footer: "module.exports;",
+      format: "cjs",
+    }).code;
+    banner = "const out =";
+    // not sure how to make this better. Need some way to dynamically export these but esm provides no way
+    footer = "export const loadPyodide = out.loadPyodide;\nexport const version = out.version;";
   }
   // this._module.parser.state.module = this._module;
   // parse with the original parser... causes errors because we do not want this to
@@ -101,5 +108,5 @@ export default function (source) {
   const p = new PyodideParser(source, options);
   p.parse();
   const finalSource = addNamedExports(p.source, options);
-  return `${output} = eval(${JSON.stringify(finalSource)})`;
+  return `${banner} eval(${JSON.stringify(finalSource)});\n${footer}`;
 }
