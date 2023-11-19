@@ -1,6 +1,7 @@
-const { loadPyodide } = require("pyodide");
+const { loadPyodide, version } = require("pyodide");
 
 async function main() {
+  console.log("pyodide version", version);
   let pyodide = await loadPyodide({
     indexURL: `${window.location.origin}/pyodide`,
   });
