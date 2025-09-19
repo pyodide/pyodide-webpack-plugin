@@ -5,15 +5,16 @@ import nodeExternals from "webpack-node-externals";
 import { fileURLToPath } from "url";
 import { AfterBuild } from "./after-build.js";
 import { moveToExample } from "./examples.js";
-import pkg from "../package.json" assert { type: "json" };
+// import pkg from "../package.json" assert { type: "json" };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // webpack config overloads when type is es6
 // npx webpack --env output='es6'
 
-export const loader = (env, argv) =>
-  /** @type {import("webpack").Configuration} */ ({
+export const loader = async (env, argv) => {
+  const pkg = JSON.parse(await fs.readFileSync(path.resolve(__dirname, "..", "package.json"), "utf-8"));
+  return /** @type {import("webpack").Configuration} */ {
     target: "node",
     mode: argv.mode || "development",
     entry: "./loader.ts",
@@ -71,4 +72,5 @@ export const loader = (env, argv) =>
         },
       ],
     },
-  });
+  };
+};

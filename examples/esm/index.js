@@ -10,7 +10,7 @@ export async function main() {
     pyodide.runPython(`
     import sys
     sys.version
-  `)
+  `),
   );
 }
 main();

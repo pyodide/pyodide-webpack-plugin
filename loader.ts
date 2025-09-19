@@ -2,7 +2,7 @@ import { Parser as AcornParser, Node } from "acorn";
 import { importAssertions } from "acorn-import-assertions";
 import esbuild from "esbuild";
 import { LoaderContext } from "webpack";
-const walk = require("acorn-walk");
+const walk = require("acorn-walk"); // eslint-disable-line
 const parser = AcornParser.extend(importAssertions as typeof importAssertions);
 
 interface LoaderOptions {

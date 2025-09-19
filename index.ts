@@ -114,7 +114,7 @@ export class PyodidePlugin extends CopyPlugin {
  * @param pyodidePath
  * @returns
  */
-function tryGetPyodidePath(pyodidePath?: string) {
+function tryGetPyodidePath(pyodidePath?: string): string {
   if (pyodidePath) {
     return path.resolve(pyodidePath);
   }
@@ -135,7 +135,7 @@ function tryGetPyodidePath(pyodidePath?: string) {
       noop(e);
     }
   }
-  const walk = (p: string) => {
+  const walk = (p: string): string => {
     const stat = fs.statSync(p);
     if (stat.isFile()) {
       return walk(path.dirname(p));
@@ -143,7 +143,7 @@ function tryGetPyodidePath(pyodidePath?: string) {
     if (stat.isDirectory()) {
       if (path.basename(p) === "node_modules") {
         throw new Error(
-          "unable to locate pyodide package. You can define it manually with pyodidePath if you're trying to test something novel"
+          "unable to locate pyodide package. You can define it manually with pyodidePath if you're trying to test something novel",
         );
       }
       for (const dirent of fs.readdirSync(p, { withFileTypes: true })) {
@@ -159,12 +159,15 @@ function tryGetPyodidePath(pyodidePath?: string) {
           }
         } catch (e) {
           throw new Error(
-            "unable to locate and parse pyodide package.json. You can define it manually with pyodidePath if you're trying to test something novel"
+            `unable to locate and parse pyodide package.json. You can define it manually with pyodidePath if you're trying to test something novel. ${(e as Error).message}`,
           );
         }
       }
       return walk(path.dirname(p));
     }
+    throw new Error(
+      "unable to locate pyodide package. You can define it manually with pyodidePath if you're trying to test something novel",
+    );
   };
   return walk(pyodideEntrypoint);
 }
@@ -183,7 +186,7 @@ function tryResolvePyodidePackage(pyodidePath: string, version?: string) {
     const pkg = fs.readFileSync(pkgPath, "utf-8");
     return JSON.parse(pkg);
   } catch (e) {
-    throw new Error(`unable to read package.json from pyodide dependency in ${pkgPath}`);
+    throw new Error(`unable to read package.json from pyodide dependency in ${pkgPath}. ${(e as Error).message}`);
   }
 }
 
