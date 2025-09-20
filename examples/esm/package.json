@@ -18,7 +18,7 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
-    "pyodide": "^0.24.1"
+    "pyodide": "^0.28.0"
   },
   "description": ""
 }

@@ -5,7 +5,6 @@ import nodeExternals from "webpack-node-externals";
 import { fileURLToPath } from "url";
 import { AfterBuild } from "./after-build.js";
 import { moveToExample } from "./examples.js";
-// import pkg from "../package.json" assert { type: "json" };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

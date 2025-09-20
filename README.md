@@ -6,6 +6,8 @@ A Webpack plugin for integrating pyodide into your project.
 
 > works with pyodide >=0.21.3
 
+For versions of Pyodide older than 0.28.0 please use @pyodide/pyodide-webpack-plugin@1.3.3 or older.
+
 ## Getting Started
 
 Install pyodide and @pyodide/webpack-plugin
@@ -46,7 +48,7 @@ async function main() {
     pyodide.runPython(`
     import sys
     sys.version
-  `)
+  `),
   );
 }
 main();

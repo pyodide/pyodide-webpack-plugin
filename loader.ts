@@ -18,7 +18,7 @@ class PyodideParser {
   constructor(source: string, options: LoaderOptions) {
     this.delta = 0;
     this.ast = parser.parse(source, {
-      ecmaVersion: 2020,
+      ecmaVersion: 2025,
       sourceType: options.isModule ? "module" : "script",
     });
     this.options = options;
