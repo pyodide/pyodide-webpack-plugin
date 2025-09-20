@@ -26,7 +26,6 @@ describe("examples", () => {
       // get the current directory
       const curDir = process.cwd();
       // wrap the whole test to ensure we can teardown safely
-      // eslint-disable-next-line no-async-promise-executor
       const err = await new Promise(async (resolve) => {
         try {
           // change into example directory. This is why the test setup is so ugly

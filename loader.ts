@@ -2,7 +2,7 @@ import { Parser as AcornParser, Node } from "acorn";
 import { importAssertions } from "acorn-import-assertions";
 import esbuild from "esbuild";
 import { LoaderContext } from "webpack";
-const walk = require("acorn-walk");
+const walk = require("acorn-walk"); // eslint-disable-line
 const parser = AcornParser.extend(importAssertions as typeof importAssertions);
 
 interface LoaderOptions {
@@ -18,7 +18,7 @@ class PyodideParser {
   constructor(source: string, options: LoaderOptions) {
     this.delta = 0;
     this.ast = parser.parse(source, {
-      ecmaVersion: 2020,
+      ecmaVersion: 2025,
       sourceType: options.isModule ? "module" : "script",
     });
     this.options = options;

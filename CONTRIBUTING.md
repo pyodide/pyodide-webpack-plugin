@@ -11,7 +11,7 @@ To contribute code, see the following steps,
    `git clone https://github.com/<your-username>/pyodide-webpack-plugin.git`\
    and add the upstream remote,\
    `git remote add upstream https://github.com/pyodide/pyodide-webpack-plugin.git`
-3. Nodejs [18.x+](https://nodejs.org/en/)
+3. Nodejs [22.x or 24.x](https://nodejs.org/en/)
 4. Install requirements\
    `npm i`
 5. See Testing and benchmarking documentation.
